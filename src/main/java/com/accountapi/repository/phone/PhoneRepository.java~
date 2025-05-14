@@ -1,0 +1,21 @@
+package com.accountapi.repository.phone;
+
+import com.accountapi.model.phone.PhoneData;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface PhoneRepository extends JpaRepository<PhoneData, Long> {
+
+//    @Cacheable(value = "phoneExists", key = "#phone")
+    boolean existsByPhone(String phone);
+
+//    @CacheEvict(value = "phoneExists", key = "#entity.phone")
+    PhoneData save(PhoneData phoneData);
+
+    @Override
+//    @CacheEvict(value = "phoneExists", key = "#entity.phone")
+    void delete(PhoneData entity);
+}

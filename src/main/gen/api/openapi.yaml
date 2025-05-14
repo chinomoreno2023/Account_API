@@ -1,0 +1,320 @@
+openapi: 3.0.3
+info:
+  title: Account API
+  version: 1.0.0
+servers:
+- url: http://localhost:8088
+paths:
+  /auth/login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequestDto'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponseDto'
+          description: Token issued
+        "400":
+          description: Invalid email or password
+      summary: User login
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /transfer:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequestDto'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Transfer success
+      security:
+      - BearerAuth: []
+      summary: Transfer money
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /users/search:
+    get:
+      parameters:
+      - explode: true
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: email
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: phone
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: dateOfBirth
+        required: false
+        schema:
+          format: date
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Page of users
+      security:
+      - BearerAuth: []
+      summary: Search users
+      x-accepts:
+      - application/json
+  /users:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+          description: User created
+      summary: Create new user
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /users/email/{id}:
+    put:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+          description: Email updated
+      security:
+      - BearerAuth: []
+      summary: Update user email
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /users/phone/{id}:
+    put:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePhoneRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+          description: Phone updated
+      security:
+      - BearerAuth: []
+      summary: Update user phone
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+components:
+  schemas:
+    AuthRequestDto:
+      example:
+        password: password
+        email: email
+      properties:
+        email:
+          format: email
+          type: string
+        password:
+          maxLength: 50
+          minLength: 8
+          type: string
+      required:
+      - email
+      - password
+      type: object
+    AuthResponseDto:
+      example:
+        token: token
+      properties:
+        token:
+          type: string
+      type: object
+    TransferRequestDto:
+      example:
+        to: 0
+        value: 0.6127456183070403
+      properties:
+        to:
+          type: integer
+        value:
+          format: double
+          minimum: 0.01
+          type: number
+      required:
+      - to
+      - value
+      type: object
+    CreateUserRequest:
+      example:
+        password: password
+        phone: phone
+        name: name
+        dateOfBirth: 2000-01-23
+        email: email
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          format: date
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+      type: object
+    UpdatePhoneRequest:
+      example:
+        newPhone: newPhone
+        oldPhone: oldPhone
+        operationType: ADD
+      properties:
+        oldPhone:
+          pattern: "^\\\\d{11}$"
+          type: string
+        newPhone:
+          pattern: "^\\\\d{11}$"
+          type: string
+        operationType:
+          $ref: '#/components/schemas/UpdateUserOperationType'
+      required:
+      - oldPhone
+      - operationType
+      type: object
+    UpdateEmailRequest:
+      example:
+        oldEmail: oldEmail
+        newEmail: newEmail
+        operationType: ADD
+      properties:
+        oldEmail:
+          format: email
+          type: string
+        newEmail:
+          format: email
+          type: string
+        operationType:
+          $ref: '#/components/schemas/UpdateUserOperationType'
+      required:
+      - oldEmail
+      - operationType
+      type: object
+    UpdateUserOperationType:
+      enum:
+      - ADD
+      - DELETE
+      - CHANGE
+      type: string
+    UserDto:
+      example:
+        emails:
+        - emails
+        - emails
+        name: name
+        phones:
+        - phones
+        - phones
+        dateOfBirth: 2000-01-23
+        id: 0
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        dateOfBirth:
+          format: date
+          type: string
+        emails:
+          items:
+            type: string
+          type: array
+        phones:
+          items:
+            type: string
+          type: array
+      type: object
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+

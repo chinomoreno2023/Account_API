@@ -1,0 +1,21 @@
+package com.accountapi.repository.email;
+
+import com.accountapi.model.email.EmailData;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface EmailRepository extends JpaRepository<EmailData, Long> {
+
+//    @Cacheable(value = "emailExists", key = "#email")
+    boolean existsByEmail(String email);
+
+//    @CacheEvict(value = "emailExists", key = "#entity.email")
+    EmailData save(EmailData emailData);
+
+    @Override
+//    @CacheEvict(value = "emailExists", key = "#entity.email")
+    void delete(EmailData entity);
+}

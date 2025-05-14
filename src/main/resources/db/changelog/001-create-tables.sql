@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    date_of_birth DATE,
+    password VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS account (
+    id BIGSERIAL PRIMARY KEY,
+    version BIGINT NOT NULL DEFAULT 0,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES users(id),
+    balance DECIMAL(19,2) NOT NULL,
+    initial_balance DECIMAL(19,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS email_data (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    email VARCHAR(200) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS phone_data (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    phone VARCHAR(13) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS processed_events (
+    id BIGSERIAL PRIMARY KEY,
+    message_id VARCHAR(255) NOT NULL UNIQUE,
+    event_id VARCHAR(255) NOT NULL
+);
